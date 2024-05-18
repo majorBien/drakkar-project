@@ -24,6 +24,13 @@
 
 #define INTERVAL 400
 #define WAIT vTaskDelay(INTERVAL)
+#include <mpu6050.h>
+
+#ifdef CONFIG_EXAMPLE_I2C_ADDRESS_LOW
+#define ADDR MPU6050_I2C_ADDRESS_LOW
+#else
+#define ADDR MPU6050_I2C_ADDRESS_HIGH
+#endif
 
 static const char *TAG = "MAIN";
 
@@ -151,150 +158,73 @@ void ILI9341(void *pvParameters)
 
 #endif
 
-		FillTest(&dev, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-
-		ColorBarTest(&dev, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
 
 		ArrowTest(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT);
 		WAIT;
 
-		LineTest(&dev, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-
-		CircleTest(&dev, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-
-		RoundRectTest(&dev, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-
-		RectAngleTest(&dev, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-
-		TriangleTest(&dev, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-
-		if (CONFIG_WIDTH >= 240) {
-			DirectionTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT);
-		} else {
-			DirectionTest(&dev, fx16G, CONFIG_WIDTH, CONFIG_HEIGHT);
-		}
-		WAIT;
-
-		if (CONFIG_WIDTH >= 240) {
-			HorizontalTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT);
-		} else {
-			HorizontalTest(&dev, fx16G, CONFIG_WIDTH, CONFIG_HEIGHT);
-		}
-		WAIT;
-
-		if (CONFIG_WIDTH >= 240) {
-			VerticalTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT);
-		} else {
-			VerticalTest(&dev, fx16G, CONFIG_WIDTH, CONFIG_HEIGHT);
-		}
-		WAIT;
-
-		FillRectTest(&dev, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-
-		ColorTest(&dev, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-
-		CodeTest(&dev, fx32G, CONFIG_WIDTH, CONFIG_HEIGHT, 0x00, 0x7f);
-		WAIT;
-
-		CodeTest(&dev, fx32G, CONFIG_WIDTH, CONFIG_HEIGHT, 0x80, 0xff);
-		WAIT;
-
-		CodeTest(&dev, fx32L, CONFIG_WIDTH, CONFIG_HEIGHT, 0x80, 0xff);
-		WAIT;
-
-		char file[32];
-		if (CONFIG_WIDTH >= CONFIG_HEIGHT) {
-			strcpy(file, "/images/esp32.bmp");
-		} else {
-			strcpy(file, "/images/esp32_ro.bmp");
-		}
-		BMPTest(&dev, file, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-
-#ifdef ENABLE_JPG
-		strcpy(file, "/images/esp32.jpeg");
-		JPEGTest(&dev, file, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-#endif
-
-#ifdef ENABLE_PNG
-		strcpy(file, "/images/esp_logo.png");
-		PNGTest(&dev, file, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-#endif
-
-		ScrollTest(&dev, fx16G, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-		ScrollReset(&dev, CONFIG_WIDTH, CONFIG_HEIGHT);
-
-		// Multi Font Test
-		uint16_t color;
-		uint8_t ascii[40];
-		uint16_t margin = 10;
-		lcdFillScreen(&dev, BLACK);
-		color = WHITE;
-		lcdSetFontDirection(&dev, DIRECTION0);
-		uint16_t xpos = 0;
-		uint16_t ypos = 15;
-		int xd = 0;
-		int yd = 1;
-		if(CONFIG_WIDTH < CONFIG_HEIGHT) {
-			lcdSetFontDirection(&dev, DIRECTION90);
-			xpos = (CONFIG_WIDTH-1)-16;
-			ypos = 0;
-			xd = 1;
-			yd = 0;
-		}
-		strcpy((char *)ascii, "16Dot Gothic Font");
-		lcdDrawString(&dev, fx16G, xpos, ypos, ascii, color);
-
-		xpos = xpos - (24 * xd) - (margin * xd);
-		ypos = ypos + (16 * yd) + (margin * yd);
-		strcpy((char *)ascii, "24Dot Gothic Font");
-		lcdDrawString(&dev, fx24G, xpos, ypos, ascii, color);
-
-		xpos = xpos - (32 * xd) - (margin * xd);
-		ypos = ypos + (24 * yd) + (margin * yd);
-		if (CONFIG_WIDTH >= 240) {
-			strcpy((char *)ascii, "32Dot Gothic Font");
-			lcdDrawString(&dev, fx32G, xpos, ypos, ascii, color);
-			xpos = xpos - (32 * xd) - (margin * xd);
-			ypos = ypos + (32 * yd) + (margin * yd);
-		}
-
-		xpos = xpos - (10 * xd) - (margin * xd);
-		ypos = ypos + (10 * yd) + (margin * yd);
-		strcpy((char *)ascii, "16Dot Mincyo Font");
-		lcdDrawString(&dev, fx16M, xpos, ypos, ascii, color);
-
-		xpos = xpos - (24 * xd) - (margin * xd);
-		ypos = ypos + (16 * yd) + (margin * yd);
-		strcpy((char *)ascii, "24Dot Mincyo Font");
-		lcdDrawString(&dev, fx24M, xpos, ypos, ascii, color);
-
-		if (CONFIG_WIDTH >= 240) {
-			xpos = xpos - (32 * xd) - (margin * xd);
-			ypos = ypos + (24 * yd) + (margin * yd);
-			strcpy((char *)ascii, "32Dot Mincyo Font");
-			lcdDrawString(&dev, fx32M, xpos, ypos, ascii, color);
-		}
-		lcdSetFontDirection(&dev, DIRECTION0);
-		WAIT;
 
 	} // end while
 
 	// never reach here
 	vTaskDelete(NULL);
 }
+
+
+//sensor thread
+
+
+void mpu6050_test(void *pvParameters)
+{
+    mpu6050_dev_t dev = { 0 };
+
+   ESP_ERROR_CHECK(mpu6050_init_desc(&dev, ADDR, 0, 12, 13));
+
+    while (1)
+    {
+        esp_err_t res = i2c_dev_probe(&dev.i2c_dev, I2C_DEV_WRITE);
+        if (res == ESP_OK)
+        {
+            ESP_LOGI(TAG, "Found MPU60x0 device");
+            break;
+        }
+        ESP_LOGE(TAG, "MPU60x0 not found");
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
+    ESP_ERROR_CHECK(mpu6050_init(&dev));
+
+    ESP_LOGI(TAG, "Accel range: %d", dev.ranges.accel);
+    ESP_LOGI(TAG, "Gyro range:  %d", dev.ranges.gyro);
+
+    while (1)
+    {
+        float temp;
+        mpu6050_acceleration_t accel = { 0 };
+        mpu6050_rotation_t rotation = { 0 };
+
+        ESP_ERROR_CHECK(mpu6050_get_temperature(&dev, &temp));
+        ESP_ERROR_CHECK(mpu6050_get_motion(&dev, &accel, &rotation));
+
+        ESP_LOGI(TAG, "**********************************************************************");
+        ESP_LOGI(TAG, "Acceleration: x=%.4f   y=%.4f   z=%.4f", accel.x, accel.y, accel.z);
+        ESP_LOGI(TAG, "Rotation:     x=%.4f   y=%.4f   z=%.4f", rotation.x, rotation.y, rotation.z);
+        ESP_LOGI(TAG, "Temperature:  %.1f", temp);
+
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 static void listSPIFFS(char * path) {
 	DIR* dir = opendir(path);
@@ -356,6 +286,16 @@ esp_err_t mountSPIFFS(char * path, char * label, int max_files) {
 
 void app_main(void)
 {
+
+
+	//mpu
+    ESP_ERROR_CHECK(i2cdev_init());
+
+    xTaskCreate(mpu6050_test, "mpu6050_test", configMINIMAL_STACK_SIZE * 6, NULL, 5, NULL);
+
+
+
+
 	// Initialize NVS
 	ESP_LOGI(TAG, "Initialize NVS");
 	esp_err_t err = nvs_flash_init();

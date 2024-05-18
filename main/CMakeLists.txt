@@ -26,4 +26,17 @@ if(IDF_TARGET STREQUAL "esp32c6")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D ENABLE_PNG")
 endif()
 
+
 idf_component_register(SRCS ${srcs} INCLUDE_DIRS ".")
+
+#idf_component_register(SRCS ${srcs} INCLUDE_DIRS "." REQUIRES mpu6050)
+#idf_component_register(SRCS ${srcs} INCLUDE_DIRS "." REQUIRES mpu6050)
+
+
+
+#idf_component_register(SRCS "main.c"
+   #                INCLUDE_DIRS "."
+   #                REQUIRES mpu6050)
+
+
+

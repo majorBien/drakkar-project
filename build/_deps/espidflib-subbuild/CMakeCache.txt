@@ -20,7 +20,7 @@ CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=
 //Install path prefix, prepended onto install directories.
 CMAKE_INSTALL_PREFIX:PATH=/usr/local
 
-//No help, variable specified on the command line.
+//Program used to build from build.ninja files.
 CMAKE_MAKE_PROGRAM:FILEPATH=/home/majorbien/.espressif/tools/ninja/1.10.2/ninja
 
 //Value Computed by CMake
@@ -92,6 +92,8 @@ CMAKE_GENERATOR_TOOLSET:INTERNAL=
 CMAKE_HOME_DIRECTORY:INTERNAL=/home/majorbien/eclipse-workspace/drakkar_project/build/_deps/espidflib-subbuild
 //Install .so files without execute permission.
 CMAKE_INSTALL_SO_NO_EXE:INTERNAL=0
+//ADVANCED property for variable: CMAKE_MAKE_PROGRAM
+CMAKE_MAKE_PROGRAM-ADVANCED:INTERNAL=1
 //number of local generators
 CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
 //Platform information initialized
