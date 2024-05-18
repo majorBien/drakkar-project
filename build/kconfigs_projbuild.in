@@ -1,0 +1,6 @@
+source "/home/majorbien/Pobrane/esp-idf4/src/esp-idf-v4.4.7/components/app_update/Kconfig.projbuild"
+source "/home/majorbien/Pobrane/esp-idf4/src/esp-idf-v4.4.7/components/bootloader/Kconfig.projbuild"
+source "/home/majorbien/Pobrane/esp-idf4/src/esp-idf-v4.4.7/components/esp_rom/Kconfig.projbuild"
+source "/home/majorbien/Pobrane/esp-idf4/src/esp-idf-v4.4.7/components/esptool_py/Kconfig.projbuild"
+source "/home/majorbien/Pobrane/esp-idf4/src/esp-idf-v4.4.7/components/partition_table/Kconfig.projbuild"
+source "/home/majorbien/eclipse-workspace/drakkar_project/components/ili9340/Kconfig.projbuild"

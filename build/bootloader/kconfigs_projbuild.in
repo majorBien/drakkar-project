@@ -1,0 +1,4 @@
+source "/home/majorbien/Pobrane/esp-idf4/src/esp-idf-v4.4.7/components/bootloader/Kconfig.projbuild"
+source "/home/majorbien/Pobrane/esp-idf4/src/esp-idf-v4.4.7/components/esp_rom/Kconfig.projbuild"
+source "/home/majorbien/Pobrane/esp-idf4/src/esp-idf-v4.4.7/components/esptool_py/Kconfig.projbuild"
+source "/home/majorbien/Pobrane/esp-idf4/src/esp-idf-v4.4.7/components/partition_table/Kconfig.projbuild"
