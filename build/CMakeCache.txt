@@ -241,6 +241,26 @@ ENABLE_TESTING:BOOL=
 //Build Mbed TLS with zlib library.
 ENABLE_ZLIB_SUPPORT:BOOL=OFF
 
+//Directory under which to collect all populated content
+FETCHCONTENT_BASE_DIR:PATH=/home/majorbien/eclipse-workspace/drakkar_project/build/_deps
+
+//Disables all attempts to download or update content and assumes
+// source dirs already exist
+FETCHCONTENT_FULLY_DISCONNECTED:BOOL=OFF
+
+//Enables QUIET option for all content population
+FETCHCONTENT_QUIET:BOOL=ON
+
+//When not empty, overrides where to find pre-populated content
+// for espidflib
+FETCHCONTENT_SOURCE_DIR_ESPIDFLIB:PATH=
+
+//Enables UPDATE_DISCONNECTED behavior for all content population
+FETCHCONTENT_UPDATES_DISCONNECTED:BOOL=OFF
+
+//Enables UPDATE_DISCONNECTED behavior just for population of espidflib
+FETCHCONTENT_UPDATES_DISCONNECTED_ESPIDFLIB:BOOL=OFF
+
 //Git command line client
 GIT_EXECUTABLE:FILEPATH=/usr/bin/git
 

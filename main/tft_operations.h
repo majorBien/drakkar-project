@@ -38,5 +38,23 @@ TickType_t FillTest(TFT_t * dev, int width, int height);
 TickType_t ColorBarTest(TFT_t * dev, int width, int height);
 TickType_t ArrowTest(TFT_t * dev, FontxFile *fx, uint16_t model, int width, int height);
 TickType_t DirectionTest(TFT_t * dev, FontxFile *fx, int width, int height);
+TickType_t HorizontalTest(TFT_t * dev, FontxFile *fx, int width, int height);
+TickType_t VerticalTest(TFT_t * dev, FontxFile *fx, int width, int height);
+TickType_t LineTest(TFT_t * dev, int width, int height);
+TickType_t CircleTest(TFT_t * dev, int width, int height);
+TickType_t RectAngleTest(TFT_t * dev, int width, int height);
+TickType_t TriangleTest(TFT_t * dev, int width, int height);
+TickType_t RoundRectTest(TFT_t * dev, int width, int height);
+TickType_t FillRectTest(TFT_t * dev, int width, int height);
+TickType_t ColorTest(TFT_t * dev, int width, int height);
+TickType_t ScrollTest(TFT_t * dev, FontxFile *fx, int width, int height);
+void ScrollReset(TFT_t * dev, int width, int height);
+TickType_t BMPTest(TFT_t * dev, char * file, int width, int height);
+TickType_t JPEGTest(TFT_t * dev, char * file, int width, int height);
+TickType_t PNGTest(TFT_t * dev, char * file, int width, int height);
+TickType_t CodeTest(TFT_t * dev, FontxFile *fx, int width, int height, uint16_t start, uint16_t end);
+
+TickType_t PNGshow(TFT_t * dev, char * file, int width, int height);
+void PNGshowPos(TFT_t * dev, char * file, int width, int height, int xpos, int ypos);
 
 #endif /* MAIN_TFT_OPERATIONS_H_ */

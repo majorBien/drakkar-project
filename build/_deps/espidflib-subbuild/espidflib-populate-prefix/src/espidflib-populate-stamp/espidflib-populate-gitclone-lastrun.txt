@@ -1,0 +1,15 @@
+# This is a generated file and its contents are an internal implementation detail.
+# The download step will be re-executed if anything in this file changes.
+# No other meaning or use of this file is supported.
+
+method=git
+command=/home/majorbien/.espressif/tools/cmake/3.23.1/bin/cmake;-P;/home/majorbien/eclipse-workspace/drakkar_project/build/_deps/espidflib-subbuild/espidflib-populate-prefix/tmp/espidflib-populate-gitclone.cmake
+source_dir=/home/majorbien/eclipse-workspace/drakkar_project/build/_deps/espidflib-src
+work_dir=/home/majorbien/eclipse-workspace/drakkar_project/build/_deps
+repository=https://github.com/UncleRus/esp-idf-lib.git
+remote=origin
+init_submodules=TRUE
+recurse_submodules=--recursive
+submodules=
+CMP0097=NEW
+

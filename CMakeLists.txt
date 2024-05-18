@@ -4,6 +4,16 @@ cmake_minimum_required(VERSION 3.5)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(drakkar_project)
+include(FetchContent)
+
+FetchContent_Declare(
+  espidflib
+  GIT_REPOSITORY https://github.com/UncleRus/esp-idf-lib.git
+)
+FetchContent_MakeAvailable(espidflib)
+set(EXTRA_COMPONENT_DIRS ${espidflib_SOURCE_DIR}/components)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(my-esp-project)
 
 # Create a SPIFFS image from the contents of the 'font' directory
 # that fits the partition named 'storage'. FLASH_IN_PROJECT indicates that
