@@ -54,35 +54,6 @@
 static const char *TAG = "MAIN";
 
 
-//uart functions
-
-void uart_init() {
-
-    uart_config_t uart_config = {
-        .baud_rate = 9600,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
-    };
-    uart_param_config(UART_NUM_1, &uart_config);
-    uart_set_pin(UART_NUM_1, TXD_PIN, RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    uart_driver_install(UART_NUM_1, 1024, 1024, 20, NULL, 0);
-
-	uart_enable_pattern_det_baud_intr(UART_NUM_1, 0x0a, 1, 9, 0, 0); // pattern is LF
-	uart_pattern_queue_reset(UART_NUM_1, 20);
-	ESP_LOGI(TAG, "Initializing UART done");
-
-}
-
-void uart_send_data(const char* data) {
-
-    uart_write_bytes(UART_NUM_0, data, strlen(data));
-
-
-}
-
-
 
 
 
@@ -351,12 +322,45 @@ void bmp280_test2(void *pvParameters)
 }
 
 
+//uart functions
+
+void uart_init() {
+
+    uart_config_t uart_config = {
+        .baud_rate = 9600,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
+    };
+    uart_param_config(UART_NUM_1, &uart_config);
+    uart_set_pin(UART_NUM_1, TXD_PIN, RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    uart_driver_install(UART_NUM_1, 1024, 1024, 0, NULL, 0);
+
+	//uart_enable_pattern_det_baud_intr(UART_NUM_1, 0x0a, 1, 9, 0, 0); // pattern is LF
+	//uart_pattern_queue_reset(UART_NUM_1, 20);
+	ESP_LOGI(TAG, "Initializing UART done");
+
+}
+
+void uart_send_data(const char* data) {
+
+    uart_write_bytes(UART_NUM_1, data, strlen(data));
+
+
+}
+
+
+
 
 
 void uart_send(void *pvParameters)
 {
+	while(1)
+	{
     uart_send_data("Hello, UART!\n");
     vTaskDelay(pdMS_TO_TICKS(1000)); // Send data every second
+	}
 }
 
 
@@ -469,7 +473,7 @@ void app_main(void)
 
 	xTaskCreate(ILI9341, "ILI9341", 1024*6, NULL, 2, NULL);
 
-	//xTaskCreate(uart_send, "uart_event_task", 2048, NULL, 12, NULL);
+	xTaskCreate(uart_send, "uart_event_task", 2048, NULL, 12, NULL);
 
 	//logs
 	//xTaskCreate(ILI9341, "ILI9341", 1024*6, NULL, 2, NULL);
