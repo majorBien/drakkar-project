@@ -29,6 +29,7 @@
 
 #include "driver/uart.h"
 #include "string.h"
+#include "stdbool.h"
 
 //mpe
 #ifdef CONFIG_EXAMPLE_I2C_ADDRESS_LOW
@@ -68,6 +69,39 @@ static const char *TAG = "MAIN";
 #define CONFIG_BL_GPIO 2
 #endif
 
+//jackob parse to json uart data
+
+typedef struct {
+  char time[11];      // HHMMSS.SS
+  char latitude[10];  // DDMM.MMMM
+  char lat_dir;       // N or S
+  char longitude[11]; // DDDMM.MMMM
+  char lon_dir;       // E or W
+  char date[7];       // DDMMYY
+  float speed;        // Speed in knots
+  float course;       // Course over ground
+} GPSData_t;
+
+typedef struct {
+  GPSData_t gpsData;
+  float temp;
+  float pressure;
+  float orientation;
+  float verticalSpeed;
+  bool thermal;
+} parsedToStruct_t;
+
+typedef union {
+
+  char toPass[sizeof(parsedToStruct_t) + 1];
+  parsedToStruct_t parsedToStruct;
+
+} togetherApesStrong_u;
+
+
+
+
+
 
 void ILI9341(void *pvParameters)
 {
@@ -87,7 +121,7 @@ void ILI9341(void *pvParameters)
 	InitFontx(fx16M,"/spiffs/ILMH16XB.FNT",""); // 8x16Dot Mincyo
 	InitFontx(fx24M,"/spiffs/ILMH24XB.FNT",""); // 12x24Dot Mincyo
 	InitFontx(fx32M,"/spiffs/ILMH32XB.FNT",""); // 16x32Dot Mincyo
-	
+
 	TFT_t dev;
 #if CONFIG_XPT2046_ENABLE_SAME_BUS
 	ESP_LOGI(TAG, "Enable Touch Contoller using the same SPI bus as TFT");
@@ -111,7 +145,7 @@ void ILI9341(void *pvParameters)
 	int XPT_SCLK_GPIO = -1;
 	int XPT_MOSI_GPIO = -1;
 #endif
-	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_TFT_CS_GPIO, CONFIG_DC_GPIO, 
+	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_TFT_CS_GPIO, CONFIG_DC_GPIO,
 		CONFIG_RESET_GPIO, CONFIG_BL_GPIO, XPT_MISO_GPIO, XPT_CS_GPIO, XPT_IRQ_GPIO, XPT_SCLK_GPIO, XPT_MOSI_GPIO);
 
 #if CONFIG_ILI9225
@@ -353,21 +387,18 @@ void uart_send_data(const char* data) {
 
 
 
-
-void uart_send(void *pvParameters)
-{
-	while(1)
-	{
-    uart_send_data("Hello, UART!\n");
-    vTaskDelay(pdMS_TO_TICKS(1000)); // Send data every second
-	}
-}
+uint8_t *shared_data = NULL;
+volatile bool data_ready = false;
 
 
+#define BUF_SIZE (1024)
+uint8_t* data;
 void uart_recieve(void * pvParameters)
 {
+	/*#define BUF_SIZE (1024)
 	   const int uart_buffer_size = 1024;
-	    uint8_t* data = (uint8_t*) malloc(uart_buffer_size);
+
+	   data = (uint8_t*) malloc(uart_buffer_size);
 
 	    while (1) {
 	        int length = uart_read_bytes(UART_NUM_1, data, uart_buffer_size - 1, pdMS_TO_TICKS(1000));
@@ -376,7 +407,117 @@ void uart_recieve(void * pvParameters)
 	            ESP_LOGI(TAG, "Received: %s", data);
 	        }
 	    }
+	    */
+	   shared_data = (uint8_t *) malloc(BUF_SIZE);
+	    if (shared_data == NULL) {
+	        ESP_LOGE(TAG, "Failed to allocate memory for UART buffer");
+	        vTaskDelete(NULL);
+	    }
+
+	    while (1) {
+	        int length = uart_read_bytes(UART_NUM_1, shared_data, BUF_SIZE - 1, pdMS_TO_TICKS(1000));
+	        if (length > 0) {
+	            shared_data[length] = '\0'; // Null-terminate the string
+	            ESP_LOGI(TAG, "Received: %s", shared_data);
+	            data_ready = true;
+	        }
+	    }
+
 }
+
+
+char string_uart[80];
+
+
+
+
+void parseNMEA(char *nmea_sentence, GPSData_t *gps_data) {
+  // Example NMEA Sentence:
+  // "$GPRMC,hhmmss.sss,A,ddmm.mmmm,N,dddmm.mmmm,E,x.x,x.x,ddmmyy,,"
+
+  if (strncmp(nmea_sentence, "$GPRMC", 6) == 0) {
+    char *token;
+    int field_count = 0;
+
+    token = strtok(nmea_sentence, ",");
+
+    while (token != NULL) {
+      switch (field_count) {
+      case 1: // Time
+        strncpy(gps_data->time, token, sizeof(gps_data->time));
+        break;
+      case 3: // Latitude
+        strncpy(gps_data->latitude, token, sizeof(gps_data->latitude));
+        break;
+      case 4: // N/S Indicator
+        gps_data->lat_dir = token[0];
+        break;
+      case 5: // Longitude
+        strncpy(gps_data->longitude, token, sizeof(gps_data->longitude));
+        break;
+      case 6: // E/W Indicator
+        gps_data->lon_dir = token[0];
+        break;
+      case 7: // Speed
+        gps_data->speed = atof(token);
+        break;
+      case 8: // Course
+        gps_data->course = atof(token);
+        break;
+      case 9: // Date
+        strncpy(gps_data->date, token, sizeof(gps_data->date));
+        break;
+      }
+
+      token = strtok(NULL, ",");
+      field_count++;
+      ESP_LOGI(TAG, "Parsed GPS Data - Time: %s, Latitude: %s %c, Longitude: %s %c, Speed: %.2f, Course: %.2f, Date: %s",
+                 gps_data->time, gps_data->latitude, gps_data->lat_dir, gps_data->longitude, gps_data->lon_dir, gps_data->speed, gps_data->course, gps_data->date);
+
+      sprintf(string_uart, "%s,%s,%c,%s,%c,%s,%f,%f", gps_data->time, gps_data->latitude, gps_data->lat_dir, gps_data->longitude, gps_data->lon_dir, gps_data->date, gps_data->speed, gps_data->course);
+
+    }
+  }
+
+
+}
+
+
+
+
+
+
+
+
+
+void uart_send_bytes(const char* data, size_t length) {
+    uart_write_bytes(UART_NUM_1, data, length);
+}
+
+void uart_send(void *pvParameters)
+{
+
+
+/*
+	 while(1)
+		  	{
+		      uart_send_data("hello\n");
+		      vTaskDelay(pdMS_TO_TICKS(1000)); // Send data every second
+		  	}
+*/
+	    while (1) {
+	        if (data_ready) {
+	            uart_write_bytes(UART_NUM_1, (const char *)shared_data, strlen((const char *)shared_data));
+	            data_ready = false; // Reset the flag after sending
+	        }
+	        vTaskDelay(pdMS_TO_TICKS(1000)); // Check for data to send every second
+	    }
+
+
+}
+
+
+
 
 
 static void listSPIFFS(char * path) {
