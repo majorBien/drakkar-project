@@ -121,7 +121,7 @@ void ILI9341(void *pvParameters)
 	InitFontx(fx16M,"/spiffs/ILMH16XB.FNT",""); // 8x16Dot Mincyo
 	InitFontx(fx24M,"/spiffs/ILMH24XB.FNT",""); // 12x24Dot Mincyo
 	InitFontx(fx32M,"/spiffs/ILMH32XB.FNT",""); // 16x32Dot Mincyo
-
+	bool flag1 = 0;
 	TFT_t dev;
 #if CONFIG_XPT2046_ENABLE_SAME_BUS
 	ESP_LOGI(TAG, "Enable Touch Contoller using the same SPI bus as TFT");
@@ -215,8 +215,14 @@ void ILI9341(void *pvParameters)
 #endif
 
 #endif
-
-
+		char file[32];
+		if(flag1==0)
+		{
+		strcpy(file, "/images/logo_drakkar.png");
+		PNGTest(&dev, file, CONFIG_WIDTH, CONFIG_HEIGHT);
+		WAIT;
+		flag1=1;
+		}
 		ArrowTest(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT);
 		WAIT;
 
@@ -395,19 +401,7 @@ volatile bool data_ready = false;
 uint8_t* data;
 void uart_recieve(void * pvParameters)
 {
-	/*#define BUF_SIZE (1024)
-	   const int uart_buffer_size = 1024;
 
-	   data = (uint8_t*) malloc(uart_buffer_size);
-
-	    while (1) {
-	        int length = uart_read_bytes(UART_NUM_1, data, uart_buffer_size - 1, pdMS_TO_TICKS(1000));
-	        if (length > 0) {
-	            data[length] = '\0'; // Null-terminate the string
-	            ESP_LOGI(TAG, "Received: %s", data);
-	        }
-	    }
-	    */
 	   shared_data = (uint8_t *) malloc(BUF_SIZE);
 	    if (shared_data == NULL) {
 	        ESP_LOGE(TAG, "Failed to allocate memory for UART buffer");
@@ -427,60 +421,6 @@ void uart_recieve(void * pvParameters)
 
 
 char string_uart[80];
-
-
-
-
-void parseNMEA(char *nmea_sentence, GPSData_t *gps_data) {
-  // Example NMEA Sentence:
-  // "$GPRMC,hhmmss.sss,A,ddmm.mmmm,N,dddmm.mmmm,E,x.x,x.x,ddmmyy,,"
-
-  if (strncmp(nmea_sentence, "$GPRMC", 6) == 0) {
-    char *token;
-    int field_count = 0;
-
-    token = strtok(nmea_sentence, ",");
-
-    while (token != NULL) {
-      switch (field_count) {
-      case 1: // Time
-        strncpy(gps_data->time, token, sizeof(gps_data->time));
-        break;
-      case 3: // Latitude
-        strncpy(gps_data->latitude, token, sizeof(gps_data->latitude));
-        break;
-      case 4: // N/S Indicator
-        gps_data->lat_dir = token[0];
-        break;
-      case 5: // Longitude
-        strncpy(gps_data->longitude, token, sizeof(gps_data->longitude));
-        break;
-      case 6: // E/W Indicator
-        gps_data->lon_dir = token[0];
-        break;
-      case 7: // Speed
-        gps_data->speed = atof(token);
-        break;
-      case 8: // Course
-        gps_data->course = atof(token);
-        break;
-      case 9: // Date
-        strncpy(gps_data->date, token, sizeof(gps_data->date));
-        break;
-      }
-
-      token = strtok(NULL, ",");
-      field_count++;
-      ESP_LOGI(TAG, "Parsed GPS Data - Time: %s, Latitude: %s %c, Longitude: %s %c, Speed: %.2f, Course: %.2f, Date: %s",
-                 gps_data->time, gps_data->latitude, gps_data->lat_dir, gps_data->longitude, gps_data->lon_dir, gps_data->speed, gps_data->course, gps_data->date);
-
-      sprintf(string_uart, "%s,%s,%c,%s,%c,%s,%f,%f", gps_data->time, gps_data->latitude, gps_data->lat_dir, gps_data->longitude, gps_data->lon_dir, gps_data->date, gps_data->speed, gps_data->course);
-
-    }
-  }
-
-
-}
 
 
 
@@ -627,5 +567,7 @@ void app_main(void)
 	xTaskCreate(uart_recieve, "uart_event_task", 2048, NULL, 16, NULL);
 	//logs
 	//xTaskCreate(ILI9341, "ILI9341", 1024*6, NULL, 2, NULL);
+
+
 
 }
