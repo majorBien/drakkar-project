@@ -364,9 +364,18 @@ void uart_send(void *pvParameters)
 }
 
 
-void revieve_uart(void * pvParameters)
+void uart_recieve(void * pvParameters)
 {
+	   const int uart_buffer_size = 1024;
+	    uint8_t* data = (uint8_t*) malloc(uart_buffer_size);
 
+	    while (1) {
+	        int length = uart_read_bytes(UART_NUM_1, data, uart_buffer_size - 1, pdMS_TO_TICKS(1000));
+	        if (length > 0) {
+	            data[length] = '\0'; // Null-terminate the string
+	            ESP_LOGI(TAG, "Received: %s", data);
+	        }
+	    }
 }
 
 
@@ -474,7 +483,7 @@ void app_main(void)
 	xTaskCreate(ILI9341, "ILI9341", 1024*6, NULL, 2, NULL);
 
 	xTaskCreate(uart_send, "uart_event_task", 2048, NULL, 12, NULL);
-
+	xTaskCreate(uart_recieve, "uart_event_task", 2048, NULL, 16, NULL);
 	//logs
 	//xTaskCreate(ILI9341, "ILI9341", 1024*6, NULL, 2, NULL);
 
