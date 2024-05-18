@@ -35,7 +35,8 @@
 #include "driver/gpio.h"
 
 TickType_t FillTest(TFT_t * dev, int width, int height);
-
-
+TickType_t ColorBarTest(TFT_t * dev, int width, int height);
+TickType_t ArrowTest(TFT_t * dev, FontxFile *fx, uint16_t model, int width, int height);
+TickType_t DirectionTest(TFT_t * dev, FontxFile *fx, int width, int height);
 
 #endif /* MAIN_TFT_OPERATIONS_H_ */
