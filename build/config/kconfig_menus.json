@@ -2118,6 +2118,64 @@
     {
         "children": [
             {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "<choice EXAMPLE_I2C_ADDRESS>",
+                        "help": "Choose this when ADDR pin is connected to ground",
+                        "id": "EXAMPLE_I2C_ADDRESS_LOW",
+                        "name": "EXAMPLE_I2C_ADDRESS_LOW",
+                        "range": null,
+                        "title": "MPU6050_I2C_ADDRESS_LOW",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice EXAMPLE_I2C_ADDRESS>",
+                        "help": "Choose this when ADDR pin is connected to VCC",
+                        "id": "EXAMPLE_I2C_ADDRESS_HIGH",
+                        "name": "EXAMPLE_I2C_ADDRESS_HIGH",
+                        "range": null,
+                        "title": "MPU6050_I2C_ADDRESS_HIGH",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "help": "Select I2C address",
+                "id": "mpu6050-example-configuration-select-i2c-address",
+                "name": "EXAMPLE_I2C_ADDRESS",
+                "title": "Select I2C address",
+                "type": "choice"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "GPIO number for I2C Master clock line.",
+                "id": "EXAMPLE_SCL_GPIO",
+                "name": "EXAMPLE_SCL_GPIO",
+                "range": null,
+                "title": "MPU6050 SCL GPIO Number",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "GPIO number for I2C Master data line.",
+                "id": "EXAMPLE_SDA_GPIO",
+                "name": "EXAMPLE_SDA_GPIO",
+                "range": null,
+                "title": "MPU6050 SDA GPIO Number",
+                "type": "int"
+            }
+        ],
+        "depends_on": null,
+        "id": "mpu6050-example-configuration",
+        "title": "MPU6050 Example Configuration",
+        "type": "menu"
+    },
+    {
+        "children": [
+            {
                 "children": [],
                 "depends_on": null,
                 "help": null,

@@ -15,7 +15,7 @@
 ########################
 
 //No help, variable specified on the command line.
-CCACHE_ENABLE:UNINITIALIZED=1
+CCACHE_ENABLE:UNINITIALIZED=0
 
 //Path to a program.
 CCACHE_FOUND:FILEPATH=/usr/bin/ccache
@@ -241,6 +241,9 @@ ENABLE_TESTING:BOOL=
 //Build Mbed TLS with zlib library.
 ENABLE_ZLIB_SUPPORT:BOOL=OFF
 
+//No help, variable specified on the command line.
+ESP_PLATFORM:UNINITIALIZED=1
+
 //Directory under which to collect all populated content
 FETCHCONTENT_BASE_DIR:PATH=/home/majorbien/eclipse-workspace/drakkar_project/build/_deps
 
@@ -296,6 +299,9 @@ Mbed TLS_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
 Mbed TLS_SOURCE_DIR:STATIC=/home/majorbien/Pobrane/esp-idf4/src/esp-idf-v4.4.7/components/mbedtls/mbedtls
+
+//No help, variable specified on the command line.
+PYTHON_DEPS_CHECKED:UNINITIALIZED=1
 
 //Allow unsafe builds. These builds ARE NOT SECURE.
 UNSAFE_BUILD:BOOL=OFF

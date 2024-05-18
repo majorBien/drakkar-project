@@ -177,7 +177,8 @@ void mpu6050_test(void *pvParameters)
 {
     mpu6050_dev_t dev = { 0 };
 
-   ESP_ERROR_CHECK(mpu6050_init_desc(&dev, ADDR, 0, 12, 13));
+   //ESP_ERROR_CHECK(mpu6050_init_desc(&dev, ADDR, 0, 21, 22)); //sda i scl
+   ESP_ERROR_CHECK(mpu6050_init_desc(&dev, ADDR, 0, CONFIG_EXAMPLE_SDA_GPIO, CONFIG_EXAMPLE_SCL_GPIO));
 
     while (1)
     {
