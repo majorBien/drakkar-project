@@ -85,7 +85,7 @@ bool left_button;
 bool right_button;
 double seaLevelPressure = 1013.25;
 uint8_t unit = 0;
-
+uint8_t direction_flag = 2;
 // You have to set these CONFIG value using menuconfig.
 #if 0
 #define CONFIG_WIDTH	240
@@ -555,12 +555,109 @@ void instruments(void *pvParameters)
 
 
 
+//thermal chimney detect
+
+
+void sample_sensor_data(sensor_data_t *data) {
+    // Zakładam, że tutaj pobierasz aktualne wartości swoich globalnych zmiennych
+    data->height = altitude; // Zakładam, że altitude jest już przeliczona na wysokość w metrach
+    data->pitch = atan2(acc_y, sqrt(acc_x * acc_x + acc_z * acc_z)) * 180 / M_PI;
+    data->roll = atan2(-acc_x, acc_z) * 180 / M_PI;
+    data->yaw = atan2(gyro_z, sqrt(gyro_x * gyro_x + gyro_y * gyro_y)) * 180 / M_PI;
+}
+
+void detect_thermal(sensor_data_t *data, size_t sample_count, char *direction) {
+    double height_sum = 0;
+    double left_height = 0;
+    double right_height = 0;
+    size_t left_count = 0;
+    size_t right_count = 0;
+
+    for (size_t i = 0; i < sample_count; i++) {
+        height_sum += data[i].height;
+    }
+
+    double avg_height = height_sum / sample_count;
+
+    for (size_t i = 0; i < sample_count; i++) {
+        if (data[i].yaw <= 180) {
+            left_height += data[i].height;
+            left_count++;
+        } else {
+            right_height += data[i].height;
+            right_count++;
+        }
+    }
+
+    double avg_left_height = left_height / left_count;
+    double avg_right_height = right_height / right_count;
+
+    if (fabs(avg_left_height - avg_height) > TURN_THRESHOLD || fabs(avg_right_height - avg_height) > TURN_THRESHOLD) {
+        if (avg_left_height > avg_right_height) {
+            *direction = 'L';
+        } else {
+            *direction = 'R';
+        }
+    } else {
+        *direction = 'U'; // Nieokreślony kierunek
+    }
+}
+
+
+
+
+
+
+void thermo_detect(void *pvParameters)
+{
+
+    //thermal detect variables
+	  sensor_data_t sensor_data;
+	  size_t sample_count = CIRCLE_ANGLE / (SAMPLE_RATE_MS / 1000.0 * 360.0 / 60.0); // Oblicz liczba próbek dla pełnego obrotu
+	  sensor_data_t *samples = malloc(sample_count * sizeof(sensor_data_t));
+	  char direction = 'U'; // 'L' - lewo, 'R' - prawo, 'U' - nieokreślone
+
+
+
+	 for (size_t i = 0; i < sample_count; i++) {
+	            sample_sensor_data(&sensor_data);
+	            samples[i] = sensor_data;
+	            vTaskDelay(pdMS_TO_TICKS(SAMPLE_RATE_MS));
+	        }
+
+	        // Detekcja komina termicznego i określenie kierunku
+	        detect_thermal(samples, sample_count, &direction);
+
+	        if (direction == 'L') {
+	            ESP_LOGI(TAG, "Zalecany kierunek: lewo");
+	            direction_flag = 0;
+	        } else if (direction == 'R') {
+	            ESP_LOGI(TAG, "Zalecany kierunek: prawo");
+	            direction_flag = 1;
+	        } else {
+	            ESP_LOGI(TAG, "Nieokreślony kierunek");
+	            direction_flag = 2;
+	        }
+
+
+
+	vTaskDelay(pdMS_TO_TICKS(5000));
+
+
+}
+
+
 
 
 
 
 void ILI9341(void *pvParameters)
 {
+
+
+
+
+
 	// set font file
 	FontxFile fx16G[2];
 	FontxFile fx24G[2];
@@ -674,6 +771,12 @@ void ILI9341(void *pvParameters)
 
 
 
+
+
+
+
+
+
 		char file[32];
 		if(flag1==0)
 		{
@@ -686,16 +789,18 @@ void ILI9341(void *pvParameters)
 		if(menu==0)
 		{
 		//ArrowInteractions(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 1);
-		ArrowInteractions2(&dev, fx24G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 0, altitude, velocityZ);
+		ArrowInteractions2(&dev, fx24G, model, CONFIG_WIDTH, CONFIG_HEIGHT, direction_flag, altitude, velocityZ);
 		//vTaskDelay(10);
 		}
 
 		if(menu==1||menu==2)
 		{
 		//displaySettingsMenu(&dev, fx24G, model, CONFIG_WIDTH, CONFIG_HEIGHT,  seaLevelPressure ,unit);
-		Menu(&dev, fx24G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 0, seaLevelPressure ,unit);
+		Menu(&dev, fx24G, model, CONFIG_WIDTH, CONFIG_HEIGHT, direction_flag, seaLevelPressure ,unit);
 		//vTaskDelay(10);
 		}
+
+
 
 
 
@@ -824,8 +929,8 @@ void app_main(void)
 	xTaskCreate(uart_recieve, "uart_event_task", 2048, NULL, 16, NULL);
 	xTaskCreate(buttons, "BUTTON-A", 1024*2, NULL, 1, NULL);
 
-	xTaskCreatePinnedToCore(instruments, "bmp280_test2", configMINIMAL_STACK_SIZE * 32, NULL, 5, NULL, 1);
-
+	xTaskCreatePinnedToCore(instruments, "avionics", configMINIMAL_STACK_SIZE * 32, NULL, 5, NULL, 1);
+	xTaskCreatePinnedToCore(thermo_detect, "thermal_chimney_detect", configMINIMAL_STACK_SIZE * 32, NULL, 2, NULL, 1);
 	//logs
 	//xTaskCreate(ILI9341, "ILI9341", 1024*6, NULL, 2, NULL);
 
