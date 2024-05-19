@@ -100,7 +100,11 @@ typedef union {
 
 
 
+//GPIO macro
 
+#define GPIO_INPUT_A	GPIO_NUM_39
+#define GPIO_INPUT_B	GPIO_NUM_38
+#define GPIO_INPUT_C	GPIO_NUM_37
 
 
 void ILI9341(void *pvParameters)
@@ -459,6 +463,39 @@ void uart_send(void *pvParameters)
 
 
 
+void buttons(void *pvParameters)
+{
+
+	gpio_pad_select_gpio(GPIO_INPUT_A);
+	gpio_set_direction(GPIO_INPUT_A, GPIO_MODE_DEF_INPUT);
+	gpio_pad_select_gpio(GPIO_INPUT_B);
+	gpio_set_direction(GPIO_INPUT_B, GPIO_MODE_DEF_INPUT);
+	gpio_pad_select_gpio(GPIO_INPUT_C);
+	gpio_set_direction(GPIO_INPUT_C, GPIO_MODE_DEF_INPUT);
+
+	while(1) {
+
+		int level_a = gpio_get_level(GPIO_INPUT_A);
+		int level_b = gpio_get_level(GPIO_INPUT_B);
+		int level_c = gpio_get_level(GPIO_INPUT_C);
+		if (level_a == 0) {
+				ESP_LOGI(TAG, "Push Button A");
+			}
+		if (level_b == 0) {
+				ESP_LOGI(TAG, "Push Button B");
+			}
+		if (level_c == 0) {
+			ESP_LOGI(TAG, "Push Button C");
+		}
+
+
+		}
+		vTaskDelay(100);
+}
+
+
+
+
 
 static void listSPIFFS(char * path) {
 	DIR* dir = opendir(path);
@@ -565,6 +602,10 @@ void app_main(void)
 
 	xTaskCreate(uart_send, "uart_event_task", 2048, NULL, 12, NULL);
 	xTaskCreate(uart_recieve, "uart_event_task", 2048, NULL, 16, NULL);
+	xTaskCreate(buttons, "BUTTON-A", 1024*2, NULL, 1, NULL);
+	//xTaskCreate(buttonB, "BUTTON-B", 1024*2, NULL, 2, NULL);
+	//xTaskCreate(buttonC, "BUTTON-C", 1024*2, NULL, 2, NULL);
+
 	//logs
 	//xTaskCreate(ILI9341, "ILI9341", 1024*6, NULL, 2, NULL);
 
