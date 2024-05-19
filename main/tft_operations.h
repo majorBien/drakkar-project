@@ -58,5 +58,6 @@ TickType_t CodeTest(TFT_t * dev, FontxFile *fx, int width, int height, uint16_t 
 TickType_t PNGshow(TFT_t * dev, char * file, int width, int height);
 void PNGshowPos(TFT_t * dev, char * file, int width, int height, int xpos, int ypos);
 TickType_t ArrowInteractions(TFT_t * dev, FontxFile *fx, uint16_t model, int width, int height, uint8_t arrow);
-
+TickType_t DisplayData(TFT_t *dev, FontxFile *fx, int width, int height, double altitude, double verticalVelocity);
+TickType_t ArrowInteractions2(TFT_t * dev, FontxFile *fx, uint16_t model, int width, int height, uint8_t arrow, double altitude, double verticalVelocity);
 #endif /* MAIN_TFT_OPERATIONS_H_ */

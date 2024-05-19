@@ -126,138 +126,6 @@ typedef union {
 #define GPIO_INPUT_C	GPIO_NUM_37
 
 
-void ILI9341(void *pvParameters)
-{
-	// set font file
-	FontxFile fx16G[2];
-	FontxFile fx24G[2];
-	FontxFile fx32G[2];
-	FontxFile fx32L[2];
-	InitFontx(fx16G,"/spiffs/ILGH16XB.FNT",""); // 8x16Dot Gothic
-	InitFontx(fx24G,"/spiffs/ILGH24XB.FNT",""); // 12x24Dot Gothic
-	InitFontx(fx32G,"/spiffs/ILGH32XB.FNT",""); // 16x32Dot Gothic
-	InitFontx(fx32L,"/spiffs/LATIN32B.FNT",""); // 16x32Dot Latinc
-
-	FontxFile fx16M[2];
-	FontxFile fx24M[2];
-	FontxFile fx32M[2];
-	InitFontx(fx16M,"/spiffs/ILMH16XB.FNT",""); // 8x16Dot Mincyo
-	InitFontx(fx24M,"/spiffs/ILMH24XB.FNT",""); // 12x24Dot Mincyo
-	InitFontx(fx32M,"/spiffs/ILMH32XB.FNT",""); // 16x32Dot Mincyo
-	bool flag1 = 0;
-	TFT_t dev;
-#if CONFIG_XPT2046_ENABLE_SAME_BUS
-	ESP_LOGI(TAG, "Enable Touch Contoller using the same SPI bus as TFT");
-	int XPT_MISO_GPIO = CONFIG_XPT_MISO_GPIO;
-	int XPT_CS_GPIO = CONFIG_XPT_CS_GPIO;
-	int XPT_IRQ_GPIO = CONFIG_XPT_IRQ_GPIO;
-	int XPT_SCLK_GPIO = -1;
-	int XPT_MOSI_GPIO = -1;
-#elif CONFIG_XPT2046_ENABLE_DIFF_BUS
-	ESP_LOGI(TAG, "Enable Touch Contoller using the different SPI bus from TFT");
-	int XPT_MISO_GPIO = CONFIG_XPT_MISO_GPIO;
-	int XPT_CS_GPIO = CONFIG_XPT_CS_GPIO;
-	int XPT_IRQ_GPIO = CONFIG_XPT_IRQ_GPIO;
-	int XPT_SCLK_GPIO = CONFIG_XPT_SCLK_GPIO;
-	int XPT_MOSI_GPIO = CONFIG_XPT_MOSI_GPIO;
-#else
-	ESP_LOGI(TAG, "Disable Touch Contoller");
-	int XPT_MISO_GPIO = -1;
-	int XPT_CS_GPIO = -1;
-	int XPT_IRQ_GPIO = -1;
-	int XPT_SCLK_GPIO = -1;
-	int XPT_MOSI_GPIO = -1;
-#endif
-	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_TFT_CS_GPIO, CONFIG_DC_GPIO,
-		CONFIG_RESET_GPIO, CONFIG_BL_GPIO, XPT_MISO_GPIO, XPT_CS_GPIO, XPT_IRQ_GPIO, XPT_SCLK_GPIO, XPT_MOSI_GPIO);
-
-#if CONFIG_ILI9225
-	uint16_t model = 0x9225;
-#endif
-#if CONFIG_ILI9225G
-	uint16_t model = 0x9226;
-#endif
-#if CONFIG_ILI9340
-	uint16_t model = 0x9340;
-#endif
-#if CONFIG_ILI9341
-	uint16_t model = 0x9341;
-#endif
-#if CONFIG_ST7735
-	uint16_t model = 0x7735;
-#endif
-#if CONFIG_ST7796
-	uint16_t model = 0x7796;
-#endif
-	lcdInit(&dev, model, CONFIG_WIDTH, CONFIG_HEIGHT, CONFIG_OFFSETX, CONFIG_OFFSETY);
-
-#if CONFIG_INVERSION
-	ESP_LOGI(TAG, "Enable Display Inversion");
-	lcdInversionOn(&dev);
-#endif
-
-#if CONFIG_RGB_COLOR
-	ESP_LOGI(TAG, "Change BGR filter to RGB filter");
-	lcdBGRFilter(&dev);
-#endif
-
-#if CONFIG_XPT2046_ENABLE_SAME_BUS || CONFIG_XPT2046_ENABLE_DIFF_BUS
-#if CONFIG_XPT_CHECK
-	TouchPosition(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
-#endif
-#endif
-
-#if 0
-	// for test
-	while(1) {
-#if CONFIG_XPT2046_ENABLE_SAME_BUS || CONFIG_XPT2046_ENABLE_DIFF_BUS
-		TouchCalibration(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT);
-		TouchPenTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
-		TouchKeyTest(&dev, fx32G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
-		TouchMenuTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
-		TouchMoveTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
-		TouchIconTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
-#endif
-
-		ArrowTest(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-	}
-#endif
-
-	while(1) {
-
-#if CONFIG_XPT2046_ENABLE_SAME_BUS || CONFIG_XPT2046_ENABLE_DIFF_BUS
-		TouchCalibration(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT);
-		TouchPenTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
-		TouchKeyTest(&dev, fx32G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
-		TouchMenuTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
-		TouchMoveTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
-
-#ifdef ENABLE_PNG
-		TouchIconTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
-#endif
-
-#endif
-		char file[32];
-		if(flag1==0)
-		{
-		strcpy(file, "/images/logo_drakkar.png");
-		PNGTest(&dev, file, CONFIG_WIDTH, CONFIG_HEIGHT);
-		WAIT;
-		flag1=1;
-		}
-		ArrowInteractions(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 1);
-		WAIT;
-		calculateAltitude(pressureG, seeLevelPressure);
-
-
-	} // end while
-
-	// never reach here
-	vTaskDelete(NULL);
-}
-
-
 
 
 //gyro tasks
@@ -537,6 +405,188 @@ void buttons(void *pvParameters)
 
 
 
+void instruments(void *pvParameters)
+{
+    Vector3 rawAcceleration = {0.0, 0.0, 0.0}; // przyspieszenie w m/s^2
+    Vector3 orientation = {0.0, 0.00, 0.0}; // orientacja w radianach
+
+    while(1)
+    {
+
+	altitude = calculateAltitude(pressureG, seeLevelPressure);
+	velocityZ = updateVerticalVelocity(gyro_x, gyro_y, gyro_z, 0.1);
+
+
+
+    Vector3 rawAcceleration = {acc_x, acc_y, acc_z};
+    Vector3 orientation = {gyro_x, gyro_y, gyro_z};
+
+    Vector3 horizontalVelocity = updateHorizontalVelocity(rawAcceleration, 0.1);
+    Vector3 correctedAcceleration = correctAcceleration(rawAcceleration, orientation);
+    Vector3 velocity = calculateVelocity(rawAcceleration, orientation, pressureG, 0.1);
+    ESP_LOGI("SENSOR_DATA", "Altitude: %.2f meters", altitude);
+    ESP_LOGI("SENSOR_DATA", "Vertical Velocity: %.2f m/s", velocityZ);
+    vTaskDelay(100);
+	/*
+	updateHorizontalVelocity(Vector3, 2);
+	correctAcceleration(Vector3, Vector3 orientation);
+	calculateVelocity(Vector3, 2, pressureG, 2);
+	*/
+    }
+}
+
+
+
+
+
+
+
+
+void ILI9341(void *pvParameters)
+{
+	// set font file
+	FontxFile fx16G[2];
+	FontxFile fx24G[2];
+	FontxFile fx32G[2];
+	FontxFile fx32L[2];
+	InitFontx(fx16G,"/spiffs/ILGH16XB.FNT",""); // 8x16Dot Gothic
+	InitFontx(fx24G,"/spiffs/ILGH24XB.FNT",""); // 12x24Dot Gothic
+	InitFontx(fx32G,"/spiffs/ILGH32XB.FNT",""); // 16x32Dot Gothic
+	InitFontx(fx32L,"/spiffs/LATIN32B.FNT",""); // 16x32Dot Latinc
+
+	FontxFile fx16M[2];
+	FontxFile fx24M[2];
+	FontxFile fx32M[2];
+	InitFontx(fx16M,"/spiffs/ILMH16XB.FNT",""); // 8x16Dot Mincyo
+	InitFontx(fx24M,"/spiffs/ILMH24XB.FNT",""); // 12x24Dot Mincyo
+	InitFontx(fx32M,"/spiffs/ILMH32XB.FNT",""); // 16x32Dot Mincyo
+	bool flag1 = 0;
+	TFT_t dev;
+#if CONFIG_XPT2046_ENABLE_SAME_BUS
+	ESP_LOGI(TAG, "Enable Touch Contoller using the same SPI bus as TFT");
+	int XPT_MISO_GPIO = CONFIG_XPT_MISO_GPIO;
+	int XPT_CS_GPIO = CONFIG_XPT_CS_GPIO;
+	int XPT_IRQ_GPIO = CONFIG_XPT_IRQ_GPIO;
+	int XPT_SCLK_GPIO = -1;
+	int XPT_MOSI_GPIO = -1;
+#elif CONFIG_XPT2046_ENABLE_DIFF_BUS
+	ESP_LOGI(TAG, "Enable Touch Contoller using the different SPI bus from TFT");
+	int XPT_MISO_GPIO = CONFIG_XPT_MISO_GPIO;
+	int XPT_CS_GPIO = CONFIG_XPT_CS_GPIO;
+	int XPT_IRQ_GPIO = CONFIG_XPT_IRQ_GPIO;
+	int XPT_SCLK_GPIO = CONFIG_XPT_SCLK_GPIO;
+	int XPT_MOSI_GPIO = CONFIG_XPT_MOSI_GPIO;
+#else
+	ESP_LOGI(TAG, "Disable Touch Contoller");
+	int XPT_MISO_GPIO = -1;
+	int XPT_CS_GPIO = -1;
+	int XPT_IRQ_GPIO = -1;
+	int XPT_SCLK_GPIO = -1;
+	int XPT_MOSI_GPIO = -1;
+#endif
+	spi_master_init(&dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_TFT_CS_GPIO, CONFIG_DC_GPIO,
+		CONFIG_RESET_GPIO, CONFIG_BL_GPIO, XPT_MISO_GPIO, XPT_CS_GPIO, XPT_IRQ_GPIO, XPT_SCLK_GPIO, XPT_MOSI_GPIO);
+
+#if CONFIG_ILI9225
+	uint16_t model = 0x9225;
+#endif
+#if CONFIG_ILI9225G
+	uint16_t model = 0x9226;
+#endif
+#if CONFIG_ILI9340
+	uint16_t model = 0x9340;
+#endif
+#if CONFIG_ILI9341
+	uint16_t model = 0x9341;
+#endif
+#if CONFIG_ST7735
+	uint16_t model = 0x7735;
+#endif
+#if CONFIG_ST7796
+	uint16_t model = 0x7796;
+#endif
+	lcdInit(&dev, model, CONFIG_WIDTH, CONFIG_HEIGHT, CONFIG_OFFSETX, CONFIG_OFFSETY);
+
+#if CONFIG_INVERSION
+	ESP_LOGI(TAG, "Enable Display Inversion");
+	lcdInversionOn(&dev);
+#endif
+
+#if CONFIG_RGB_COLOR
+	ESP_LOGI(TAG, "Change BGR filter to RGB filter");
+	lcdBGRFilter(&dev);
+#endif
+
+#if CONFIG_XPT2046_ENABLE_SAME_BUS || CONFIG_XPT2046_ENABLE_DIFF_BUS
+#if CONFIG_XPT_CHECK
+	TouchPosition(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
+#endif
+#endif
+
+#if 0
+	// for test
+	while(1) {
+#if CONFIG_XPT2046_ENABLE_SAME_BUS || CONFIG_XPT2046_ENABLE_DIFF_BUS
+		TouchCalibration(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT);
+		TouchPenTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
+		TouchKeyTest(&dev, fx32G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
+		TouchMenuTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
+		TouchMoveTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
+		TouchIconTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
+#endif
+
+		ArrowTest(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT);
+		WAIT;
+	}
+#endif
+
+	while(1) {
+
+#if CONFIG_XPT2046_ENABLE_SAME_BUS || CONFIG_XPT2046_ENABLE_DIFF_BUS
+		TouchCalibration(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT);
+		TouchPenTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
+		TouchKeyTest(&dev, fx32G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
+		TouchMenuTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
+		TouchMoveTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
+
+#ifdef ENABLE_PNG
+		TouchIconTest(&dev, fx24G, CONFIG_WIDTH, CONFIG_HEIGHT, 1000);
+#endif
+
+#endif
+
+
+
+		char file[32];
+		if(flag1==0)
+		{
+		strcpy(file, "/images/logo_drakkar.png");
+		PNGTest(&dev, file, CONFIG_WIDTH, CONFIG_HEIGHT);
+		WAIT;
+		flag1=1;
+		}
+		//ArrowInteractions(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 1);
+		ArrowInteractions2(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 1, altitude, velocityZ);
+		 vTaskDelay(300);
+
+
+
+
+	} // end while
+
+	// never reach here
+	vTaskDelete(NULL);
+}
+
+
+
+
+
+
+
+
+
+
 
 static void listSPIFFS(char * path) {
 	DIR* dir = opendir(path);
@@ -644,8 +694,8 @@ void app_main(void)
 	xTaskCreate(uart_send, "uart_event_task", 2048, NULL, 12, NULL);
 	xTaskCreate(uart_recieve, "uart_event_task", 2048, NULL, 16, NULL);
 	xTaskCreate(buttons, "BUTTON-A", 1024*2, NULL, 1, NULL);
-	//xTaskCreate(buttonB, "BUTTON-B", 1024*2, NULL, 2, NULL);
-	//xTaskCreate(buttonC, "BUTTON-C", 1024*2, NULL, 2, NULL);
+
+	xTaskCreatePinnedToCore(instruments, "bmp280_test2", configMINIMAL_STACK_SIZE * 32, NULL, 5, NULL, 1);
 
 	//logs
 	//xTaskCreate(ILI9341, "ILI9341", 1024*6, NULL, 2, NULL);

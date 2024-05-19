@@ -41,9 +41,19 @@
 #include "driver/uart.h"
 #include "string.h"
 #include "stdbool.h"
+#include <math.h>
+
+typedef struct {
+    double x;
+    double y;
+    double z;
+} Vector3;
 
 double calculateAltitude(double pressure, double seaLevelPressure);
-double updateVerticalVelocity(double deltaTime,double pressure);
-
+//double updateVerticalVelocity(double deltaTime,double pressure);
+Vector3 updateHorizontalVelocity(Vector3 acceleration, double deltaTime);
+Vector3 correctAcceleration(Vector3 rawAcceleration, Vector3 orientation);
+Vector3 calculateVelocity(Vector3 rawAcceleration, Vector3 orientation, double pressure, double deltaTime);
+double updateVerticalVelocity(double gyro_x, double gyro_y, double gyro_z, double delta_czasu);
 
 #endif /* MAIN_INSTRUMENTS_H_ */
