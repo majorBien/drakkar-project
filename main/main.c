@@ -790,19 +790,15 @@ void ILI9341(void *pvParameters)
 		{
 		//ArrowInteractions(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 1);
 		ArrowInteractions2(&dev, fx24G, model, CONFIG_WIDTH, CONFIG_HEIGHT, direction_flag, altitude, velocityZ);
-		//vTaskDelay(10);
+		vTaskDelay(200);
 		}
 
 		if(menu==1||menu==2)
 		{
 		//displaySettingsMenu(&dev, fx24G, model, CONFIG_WIDTH, CONFIG_HEIGHT,  seaLevelPressure ,unit);
 		Menu(&dev, fx24G, model, CONFIG_WIDTH, CONFIG_HEIGHT, direction_flag, seaLevelPressure ,unit);
-		//vTaskDelay(10);
+		vTaskDelay(200);
 		}
-
-
-
-
 
 
 
