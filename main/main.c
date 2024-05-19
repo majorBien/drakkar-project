@@ -562,8 +562,8 @@ void instruments(void *pvParameters)
 
 
 void sample_sensor_data(sensor_data_t *data) {
-    // Zakładam, że tutaj pobierasz aktualne wartości swoich globalnych zmiennych
-    data->height = altitude; // Zakładam, że altitude jest już przeliczona na wysokość w metrach
+
+    data->height = altitude;
     data->pitch = atan2(acc_y, sqrt(acc_x * acc_x + acc_z * acc_z)) * 180 / M_PI;
     data->roll = atan2(-acc_x, acc_z) * 180 / M_PI;
     data->yaw = atan2(gyro_z, sqrt(gyro_x * gyro_x + gyro_y * gyro_y)) * 180 / M_PI;
@@ -642,6 +642,16 @@ void thermo_detect(void *pvParameters)
 	            direction_flag = 2;
 	        }
 
+
+
+	        void set_gpio_high(gpio_num_t gpio_num, uint8_t direction_flag) {
+	        	if(direction_flag==0||direction_flag==1)
+	        	{
+	        		 gpio_set_direction(gpio_num, GPIO_MODE_OUTPUT);
+	        	     gpio_set_level(gpio_num, 3);
+	        	}
+
+	        }
 
 
 	vTaskDelay(pdMS_TO_TICKS(5000));
