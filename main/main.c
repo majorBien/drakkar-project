@@ -76,7 +76,15 @@ float temperatureG = 0.0;
 
 double velocityZ = 0.0;
 double altitude = 0.0;
-double seeLevelPressure = 1013.25;
+
+
+//menu globals
+
+uint8_t menu = 0;
+bool left_button;
+bool right_button;
+double seaLevelPressure = 1013.25;
+uint8_t unit = 0;
 
 // You have to set these CONFIG value using menuconfig.
 #if 0
@@ -371,7 +379,7 @@ void uart_send(void *pvParameters)
 
 
 
-
+/*
 void buttons(void *pvParameters)
 {
 
@@ -389,20 +397,129 @@ void buttons(void *pvParameters)
 		int level_c = gpio_get_level(GPIO_INPUT_C);
 		if (level_a == 0) {
 				ESP_LOGI(TAG, "Push Button A");
+				if(menu==1)
+				{
+					seaLevelPressure--;
+					vTaskDelay(1);
+				}
+				if(menu==2)
+				{
+					unit--;
+					if(unit<0) unit = 0;
+					vTaskDelay(1);
+
+				}
+
 			}
 		if (level_b == 0) {
 				ESP_LOGI(TAG, "Push Button B");
+				menu++;
+				vTaskDelay(100);
+				if(menu>2) menu = 0;
+
 			}
 		if (level_c == 0) {
 			ESP_LOGI(TAG, "Push Button C");
 		}
+		if(menu==1)
+		{
+			seaLevelPressure++;
+			vTaskDelay(1);
+		}
 
+		if(menu==2)
+		{
+			unit++;
+			if(unit>1) unit = 1;
+			vTaskDelay(1);
+		}
 
 		}
-		vTaskDelay(100);
+		vTaskDelay(10);
 }
 
 
+*/
+
+void buttons(void *pvParameters)
+{
+    // Konfiguracja pinów z pull-up
+    gpio_config_t io_conf;
+    io_conf.intr_type = GPIO_INTR_DISABLE;       // Wyłącz przerwania
+    io_conf.mode = GPIO_MODE_INPUT;              // Ustaw jako wejścia
+    io_conf.pin_bit_mask = (1ULL << GPIO_INPUT_A) | (1ULL << GPIO_INPUT_B) | (1ULL << GPIO_INPUT_C);
+    io_conf.pull_down_en = 0;                    // Wyłącz pull-down
+    io_conf.pull_up_en = 1;                      // Włącz pull-up
+
+    gpio_config(&io_conf);
+
+    // Zmienna stanu do kontrolowania automatycznego zwiększania
+    bool incrementing = false;
+    TickType_t lastIncrementTime = xTaskGetTickCount();
+
+    while (1)
+    {
+        int level_a = gpio_get_level(GPIO_INPUT_A);
+        int level_b = gpio_get_level(GPIO_INPUT_B);
+        int level_c = gpio_get_level(GPIO_INPUT_C);
+
+        if (level_a == 0)
+        {
+            ESP_LOGI(TAG, "Push Button A");
+            incrementing = false;
+            if (menu == 1)
+            {
+                seaLevelPressure--;
+                vTaskDelay(pdMS_TO_TICKS(200)); // Opóźnienie 200 ms
+            }
+            else if (menu == 2)
+            {
+                unit--;
+                if (unit < 0) unit = 0;
+                vTaskDelay(pdMS_TO_TICKS(200)); // Opóźnienie 200 ms
+            }
+        }
+
+        if (level_b == 0)
+        {
+            ESP_LOGI(TAG, "Push Button B");
+            incrementing = false;
+            menu++;
+            vTaskDelay(pdMS_TO_TICKS(200)); // Opóźnienie 200 ms
+            if (menu > 2) menu = 0;
+        }
+
+        if (level_c == 0)
+        {
+            ESP_LOGI(TAG, "Push Button C");
+            incrementing = false;
+            // Możesz dodać tutaj kod obsługi przycisku C
+        }
+
+        // Automatyczne zwiększanie zmiennych na podstawie aktywnego menu co 1 sekundę
+        if (xTaskGetTickCount() - lastIncrementTime > pdMS_TO_TICKS(1000))
+        {
+            if (menu == 1)
+            {
+                seaLevelPressure++;
+                incrementing = true;
+            }
+            else if (menu == 2)
+            {
+                unit++;
+                if (unit > 1) unit = 1;
+                incrementing = true;
+            }
+            lastIncrementTime = xTaskGetTickCount();
+        }
+
+        // Resetowanie stanu incrementing po naciśnięciu przycisku
+        if (!incrementing)
+        {
+            vTaskDelay(pdMS_TO_TICKS(10)); // Opóźnienie 10 ms na koniec pętli
+        }
+    }
+}
 
 
 void instruments(void *pvParameters)
@@ -413,7 +530,7 @@ void instruments(void *pvParameters)
     while(1)
     {
 
-	altitude = calculateAltitude(pressureG, seeLevelPressure);
+	altitude = calculateAltitude(pressureG, seaLevelPressure);
 	velocityZ = updateVerticalVelocity(gyro_x, gyro_y, gyro_z, 0.1);
 
 
@@ -565,9 +682,21 @@ void ILI9341(void *pvParameters)
 		WAIT;
 		flag1=1;
 		}
+
+		if(menu==0)
+		{
 		//ArrowInteractions(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 1);
-		ArrowInteractions2(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 1, altitude, velocityZ);
-		 vTaskDelay(300);
+		ArrowInteractions2(&dev, fx24G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 0, altitude, velocityZ);
+		//vTaskDelay(10);
+		}
+
+		if(menu==1||menu==2)
+		{
+		//displaySettingsMenu(&dev, fx24G, model, CONFIG_WIDTH, CONFIG_HEIGHT,  seaLevelPressure ,unit);
+		Menu(&dev, fx24G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 0, seaLevelPressure ,unit);
+		//vTaskDelay(10);
+		}
+
 
 
 

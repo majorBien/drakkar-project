@@ -56,4 +56,16 @@ Vector3 correctAcceleration(Vector3 rawAcceleration, Vector3 orientation);
 Vector3 calculateVelocity(Vector3 rawAcceleration, Vector3 orientation, double pressure, double deltaTime);
 double updateVerticalVelocity(double gyro_x, double gyro_y, double gyro_z, double delta_czasu);
 
+
+#define SAMPLE_RATE_MS 100
+#define CIRCLE_ANGLE 360
+#define TURN_THRESHOLD 10
+
+typedef struct {
+    float height;
+    float pitch;
+    float roll;
+    float yaw;
+} sensor_data_t;
+
 #endif /* MAIN_INSTRUMENTS_H_ */

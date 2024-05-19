@@ -2240,8 +2240,6 @@ TickType_t ArrowInteractions(TFT_t * dev, FontxFile *fx, uint16_t model, int wid
 	return diffTick;
 
 
-
-
 }
 
 
@@ -2277,24 +2275,24 @@ TickType_t ArrowInteractions2(TFT_t * dev, FontxFile *fx, uint16_t model, int wi
 	        lcdSetFontDirection(dev, DIRECTION0);
 	    }
 	    color = WHITE;
-	    lcdDrawString(dev, fx, xpos, 15, ascii, color);
+	    lcdDrawString(dev, fx, xpos, 30, ascii, color);
 
 	    // Wyświetlenie strzałek
 	    lcdSetFontDirection(dev, DIRECTION0);
 	    if(arrow == 0) {
 	        color = GREEN;
-	        lcdDrawFillArrow(dev, 10, 10, 0, 0, 5, color);
+	        lcdDrawFillArrow(dev, 15, 10, 0, 0, 5, color);
 	        strcpy((char *)ascii, "CHM");
-	        lcdDrawString(dev, fx, 0, 30, ascii, color);
+	        lcdDrawString(dev, fx, 0, 40, ascii, color);
 	    }
 
 	    if(arrow == 1) {
 	        color = GREEN;
-	        lcdDrawFillArrow(dev, width-11, 10, width-1, 0, 5, color);
+	        lcdDrawFillArrow(dev, width-14, 10, width-1, 0, 5, color);
 	        sprintf((char *)ascii, "CHM");
 	        stlen = strlen((char *)ascii);
 	        xpos = (width-1) - (fontWidth*stlen);
-	        lcdDrawString(dev, fx, xpos, 30, ascii, color);
+	        lcdDrawString(dev, fx, xpos, 40, ascii, color);
 	    }
 
 	    // Wyświetlenie danych o wysokości i prędkości pionowej
@@ -2311,4 +2309,65 @@ TickType_t ArrowInteractions2(TFT_t * dev, FontxFile *fx, uint16_t model, int wi
 	    ESP_LOGI(__FUNCTION__, "elapsed time[ms]:%"PRIu32,diffTick*portTICK_PERIOD_MS);
 	    return diffTick;
 }
+
+
+TickType_t Menu(TFT_t * dev, FontxFile *fx, uint16_t model, int width, int height, uint8_t arrow, double localPressureOffset, uint8_t unit){
+	   TickType_t startTick, endTick, diffTick;
+	    startTick = xTaskGetTickCount();
+
+	    // Pobierz szerokość i wysokość czcionki
+	    uint8_t buffer[FontxGlyphBufSize];
+	    uint8_t fontWidth;
+	    uint8_t fontHeight;
+	    GetFontx(fx, 0, buffer, &fontWidth, &fontHeight);
+
+	    // Ustawienie orientacji czcionki
+	    uint16_t xpos;
+	    uint16_t ypos;
+	    int	stlen;
+	    uint8_t ascii[30]; // Zwiększono rozmiar bufora na potrzeby dłuższych łańcuchów
+	    uint16_t color;
+
+	    // Wypełnienie ekranu na czarno
+	    lcdFillScreen(dev, BLACK);
+
+	    // Wyświetlenie nazwy aplikacji
+	    strcpy((char *)ascii, "Thermal Assistant");
+	    if (width < height) {
+	        xpos = ((width - fontHeight) / 2) - 1;
+	        ypos = (height - (strlen((char *)ascii) * fontWidth)) / 2;
+	        lcdSetFontDirection(dev, DIRECTION90);
+	    } else {
+	        ypos = ((height - fontHeight) / 2) - 1;
+	        xpos = (width - (strlen((char *)ascii) * fontWidth)) / 2;
+	        lcdSetFontDirection(dev, DIRECTION0);
+	    }
+	    color = WHITE;
+	    lcdDrawString(dev, fx, xpos, 30, ascii, color);
+
+	    // Wyświetlenie strzałek
+	    lcdSetFontDirection(dev, DIRECTION0);
+
+	    // Wyświetlenie danych o wysokości i prędkości pionowej
+	    color = WHITE;
+	    snprintf((char *)ascii, sizeof(ascii), "Local pressure: %.2f", localPressureOffset); // Usunięto " meters"
+	    lcdDrawString(dev, fx, 0, height-40, ascii, color);
+
+	    //snprintf((char *)ascii, sizeof(ascii), "Unit: %.u", unit); // Usunięto " m/s"
+	    if (unit == 0) {
+	        snprintf((char *)ascii, sizeof(ascii), "Unit: m/s");
+	    } else if (unit == 1) {
+	        snprintf((char *)ascii, sizeof(ascii), "Unit: knots");
+	    }
+
+
+	    lcdDrawString(dev, fx, 0, height-20, ascii, color);
+
+	    // Zakończenie pomiaru czasu i zwrócenie wyniku
+	    endTick = xTaskGetTickCount();
+	    diffTick = endTick - startTick;
+	    ESP_LOGI(__FUNCTION__, "elapsed time[ms]:%"PRIu32,diffTick*portTICK_PERIOD_MS);
+	    return diffTick;
+}
+
 
