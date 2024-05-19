@@ -46,21 +46,21 @@ double updateVerticalVelocity(double deltaTime, double pressure) {
 }
 
 */
-double updateVerticalVelocity(double gyro_x, double gyro_y, double gyro_z, double delta_czasu) {
-    // Załóżmy, że odczyty są w radianach na sekundę (rad/s)
+double updateVerticalVelocity(double gyro_x, double gyro_y, double gyro_z, double delta_czasu, bool feet) {
 
-    // Prędkość kątowa wokół osi Z (pionowej)
-    double pr_predkosc_z = gyro_z;
+	 double pr_predkosc_z = gyro_z;
+	    double delta_kat_z = pr_predkosc_z * delta_czasu;
+	    double predkosc_pionowa;
 
-    // Obliczanie zmiany kąta w czasie przez całkowanie prędkości kątowej
-    double delta_kat_z = pr_predkosc_z * delta_czasu;
+	    if (feet) {
 
-    // Tutaj możesz zaimplementować różne metody całkowania, np. metodę prostokątów, trapezów, itp.
+	        predkosc_pionowa = delta_kat_z * 114.591559;
+	    } else {
 
-    // Obliczanie prędkości pionowej (vertical speed) zgodnie z kątem zmiany w czasie
-    double predkosc_pionowa = delta_kat_z; // Tutaj możesz dodać dodatkowe korekty lub przeliczenia
+	        predkosc_pionowa = delta_kat_z;
+	    }
 
-    return predkosc_pionowa;
+	    return predkosc_pionowa;
 }
 
 

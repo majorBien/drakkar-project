@@ -2357,7 +2357,7 @@ TickType_t Menu(TFT_t * dev, FontxFile *fx, uint16_t model, int width, int heigh
 	    if (unit == 0) {
 	        snprintf((char *)ascii, sizeof(ascii), "Unit: m/s");
 	    } else if (unit == 1) {
-	        snprintf((char *)ascii, sizeof(ascii), "Unit: knots");
+	        snprintf((char *)ascii, sizeof(ascii), "Unit: s/m");
 	    }
 
 

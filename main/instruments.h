@@ -67,7 +67,7 @@ double calculateAltitude(double pressure, double seaLevelPressure);
 Vector3 updateHorizontalVelocity(Vector3 acceleration, double deltaTime);
 Vector3 correctAcceleration(Vector3 rawAcceleration, Vector3 orientation);
 Vector3 calculateVelocity(Vector3 rawAcceleration, Vector3 orientation, double pressure, double deltaTime);
-double updateVerticalVelocity(double gyro_x, double gyro_y, double gyro_z, double delta_czasu);
+double updateVerticalVelocity(double gyro_x, double gyro_y, double gyro_z, double delta_czasu, bool feet);
 
 
 void sample_sensor_data(sensor_data_t *data);

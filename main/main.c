@@ -79,7 +79,7 @@ double altitude = 0.0;
 
 
 //menu globals
-
+bool feet;
 uint8_t menu = 0;
 bool left_button;
 bool right_button;
@@ -518,6 +518,9 @@ void buttons(void *pvParameters)
         {
             vTaskDelay(pdMS_TO_TICKS(10)); // Opóźnienie 10 ms na koniec pętli
         }
+
+        if(unit == 0) feet = 0;
+        else feet = 1;
     }
 }
 
@@ -531,7 +534,7 @@ void instruments(void *pvParameters)
     {
 
 	altitude = calculateAltitude(pressureG, seaLevelPressure);
-	velocityZ = updateVerticalVelocity(gyro_x, gyro_y, gyro_z, 0.1);
+	velocityZ = updateVerticalVelocity(gyro_x, gyro_y, gyro_z, 0.1,feet);
 
 
 
