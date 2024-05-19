@@ -1,4 +1,4 @@
-set(srcs "main.c" "decode_png.c" "pngle.c" "tft_operations.c")
+set(srcs "main.c" "decode_png.c" "pngle.c" "tft_operations.c" "instruments.c")
 
 # tjpgd library does not exist in ESP32-S2 ROM.
 

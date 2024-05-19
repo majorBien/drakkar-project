@@ -30,6 +30,7 @@
 #include "driver/uart.h"
 #include "string.h"
 #include "stdbool.h"
+#include "instruments.h"
 
 //mpe
 #ifdef CONFIG_EXAMPLE_I2C_ADDRESS_LOW
@@ -55,9 +56,27 @@
 static const char *TAG = "MAIN";
 
 
+//global variables
+
+//gyro and acc globals
 
 
+float acc_x = 0.0;
+float acc_y = 0.0;
+float acc_z = 0.0;
 
+float gyro_x = 0.0;
+float gyro_y = 0.0;
+float gyro_z = 0.0;
+
+//bme globals
+
+float pressureG = 0.0;
+float temperatureG = 0.0;
+
+double velocityZ = 0.0;
+double altitude = 0.0;
+double seeLevelPressure = 1013.25;
 
 // You have to set these CONFIG value using menuconfig.
 #if 0
@@ -229,6 +248,7 @@ void ILI9341(void *pvParameters)
 		}
 		ArrowInteractions(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 1);
 		WAIT;
+		calculateAltitude(pressureG, seeLevelPressure);
 
 
 	} // end while
@@ -238,8 +258,9 @@ void ILI9341(void *pvParameters)
 }
 
 
-//sensor thread
 
+
+//gyro tasks
 
 void mpu6050_test(void *pvParameters)
 {
@@ -279,6 +300,14 @@ void mpu6050_test(void *pvParameters)
         ESP_LOGI(TAG, "Rotation:     x=%.4f   y=%.4f   z=%.4f", rotation.x, rotation.y, rotation.z);
         ESP_LOGI(TAG, "Temperature:  %.1f", temp);
 
+        acc_x = accel.x;
+        acc_y = accel.y;
+        acc_z = accel.z;
+
+        gyro_x = rotation.x;
+        gyro_y = rotation.y;
+        gyro_z = rotation.z;
+
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
@@ -286,8 +315,6 @@ void mpu6050_test(void *pvParameters)
 
 
 //bme task
-
-
 
 
 void bmp280_test(void *pvParameters)
@@ -323,6 +350,8 @@ void bmp280_test(void *pvParameters)
             printf(", Humidity: %.2f\n", humidity);
         else
             printf("\n");
+        pressureG = pressure;
+        temperatureG = temperature;
     }
 }
 
@@ -365,6 +394,17 @@ void bmp280_test2(void *pvParameters)
     }
 }
 
+//uart globals GPS
+/*
+char time[11];      // HHMMSS.SS
+char latitude[10];  // DDMM.MMMM
+char lat_dir;       // N or S
+char longitude[11]; // DDDMM.MMMM
+char lon_dir;       // E or W
+char date[7];       // DDMMYY
+float speed;        // Speed in knots
+float course;       // Course over ground
+*/
 
 //uart functions
 
@@ -453,6 +493,7 @@ void uart_send(void *pvParameters)
 	        if (data_ready) {
 	            uart_write_bytes(UART_NUM_1, (const char *)shared_data, strlen((const char *)shared_data));
 	            data_ready = false; // Reset the flag after sending
+	            ESP_LOGI(TAG, "Transmitted: %s", shared_data);
 	        }
 	        vTaskDelay(pdMS_TO_TICKS(1000)); // Check for data to send every second
 	    }
