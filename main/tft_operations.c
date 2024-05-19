@@ -2178,3 +2178,63 @@ void PNGshowPos(TFT_t * dev, char * file, int width, int height, int xpos, int y
 	return;
 }
 
+
+TickType_t ArrowInteractions(TFT_t * dev, FontxFile *fx, uint16_t model, int width, int height, uint8_t arrow) {
+	TickType_t startTick, endTick, diffTick;
+	startTick = xTaskGetTickCount();
+
+	// get font width & height
+	uint8_t buffer[FontxGlyphBufSize];
+	uint8_t fontWidth;
+	uint8_t fontHeight;
+	GetFontx(fx, 0, buffer, &fontWidth, &fontHeight);
+	ESP_LOGD(__FUNCTION__,"fontWidth=%d fontHeight=%d",fontWidth,fontHeight);
+
+	uint16_t xpos;
+	uint16_t ypos;
+	int	stlen;
+	uint8_t ascii[24];
+	uint16_t color;
+
+	lcdFillScreen(dev, BLACK);
+
+	strcpy((char *)ascii, "Thermal Assistant");
+
+	if (width < height) {
+		xpos = ((width - fontHeight) / 2) - 1;
+		ypos = (height - (strlen((char *)ascii) * fontWidth)) / 2;
+		lcdSetFontDirection(dev, DIRECTION90);
+	} else {
+		ypos = ((height - fontHeight) / 2) - 1;
+		xpos = (width - (strlen((char *)ascii) * fontWidth)) / 2;
+		lcdSetFontDirection(dev, DIRECTION0);
+	}
+	color = WHITE;
+	lcdDrawString(dev, fx, xpos, 15, ascii, color);
+
+	lcdSetFontDirection(dev, DIRECTION0);
+	//lcdFillScreen(dev, WHITE);
+	if(arrow == 0)
+	{
+	color = GREEN;
+	lcdDrawFillArrow(dev, 10, 10, 0, 0, 5, color);
+	strcpy((char *)ascii, "CHM");
+	lcdDrawString(dev, fx, 0, 30, ascii, color);
+	}
+
+	if(arrow ==1)
+	{
+	color = GREEN;
+	lcdDrawFillArrow(dev, width-11, 10, width-1, 0, 5, color);
+	//strcpy((char *)ascii, "79,0");
+	sprintf((char *)ascii, "CHM");
+	stlen = strlen((char *)ascii);
+	xpos = (width-1) - (fontWidth*stlen);
+	lcdDrawString(dev, fx, xpos, 30, ascii, color);
+	}
+
+	endTick = xTaskGetTickCount();
+	diffTick = endTick - startTick;
+	ESP_LOGI(__FUNCTION__, "elapsed time[ms]:%"PRIu32,diffTick*portTICK_PERIOD_MS);
+	return diffTick;
+}

@@ -227,7 +227,7 @@ void ILI9341(void *pvParameters)
 		WAIT;
 		flag1=1;
 		}
-		ArrowTest(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT);
+		ArrowInteractions(&dev, fx16G, model, CONFIG_WIDTH, CONFIG_HEIGHT, 1);
 		WAIT;
 
 
