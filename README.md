@@ -88,7 +88,7 @@ The detection of thermal chimneys is done by analyzing differences in medium hei
 
 Schematic diagram
 
-[Schematic_aviatech_2024-05-19 (1).pdf](https://github.com/majorBien/drakkar-project/files/15378443/Schematic_aviatech_2024-05-19.1.pdf)
+![Schematic_aviatech_2024-05-19](https://github.com/majorBien/drakkar-project/assets/122567282/bd79581c-b127-4602-a82c-84c190d5c2fd)
 
 
 
