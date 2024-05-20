@@ -23,7 +23,7 @@ Additional display showing our speed, height and arrows showing the likely cente
 The device will download data from the database whenever it has access to the Internet, so we consider the options for using miniature SatCom modules.
 
 Front-end application documentation
-https://github.com/fifcio13/drakkaviatch
+https://github.com/fifcio13/DrakkarAviaTech
 Author: Filip Krawczyk
 Technologies
 The Front-End application was built in JavaScript using the React Framework. The choice of this technology was dictated by the following factors:
@@ -59,6 +59,7 @@ Improving the fluidity of the map.
 
 Embedded System Documentation
 https://github.com/majorbien/drakkar-project
+Author: Wiktor Bień
 Technologies
 
 C
@@ -123,4 +124,5 @@ Development plans
 
 Raspberry Pi backend application repository
 https://github.com/grappas/json_parser_aviatech
+Author: Jakub Konior
 
