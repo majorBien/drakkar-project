@@ -11,6 +11,9 @@ Jakub Konior - Backend Developer
 Filip Krawczyk - Frontend Developer
 Kamil Bęben - Airplane Subject Matter Expert
 The Drakkar project, i.e. a device that facilitates thermal flights by integrating flight parameters measurements, communication between devices/users and ultimately a predictive system showing the areas of current and likely movements of air masses is also equipped with a device supporting the location of the thermal chimneys center.
+Technologies that we've used:
+![techs](https://github.com/majorBien/drakkar-project/assets/122567282/61d99629-9f00-40d0-965c-fbe497031654)
+
  
 A system consisting of 2 displays cooperating with each other 
 ![concept](https://github.com/majorBien/drakkar-project/assets/122567282/4f82219e-fd74-4118-9807-29f00a2f07b4)
@@ -106,15 +109,14 @@ Development plans
 
 3. Development of the user interface: Improving the user interface, both in terms of aesthetics and usability. The ability to personalize the interface and add new functions, such as displaying the map with selected thermal areas or the ability to save flight routes, can significantly increase the attractiveness of the system for users.
 
-4. Integration with the cloud of data: Developing integration with cloud services, which will allow you to store and analyze data in cloud flights. Thanks to this, users will have easier access to their data from any device and the ability to use advanced flight analysis tools.
 
-5. Tests and implementation: continuation of system tests in various aerial conditions and further improving data analysis algorithms. After the tests are completed, subsequent system implementation is planned on a larger scale, both among glider enthusiasts and in professional air schools.
+6. Tests and implementation: continuation of system tests in various aerial conditions and further improving data analysis algorithms. After the tests are completed, subsequent system implementation is planned on a larger scale, both among glider enthusiasts and in professional air schools.
 
-6. Graphic indications of the optimal speed for flights during stewing and wearing- i.e. the overlay thanks to which the user will have the opportunity to see predictions as to the conditions in the air.
-7. Indications of the optimal flap position for a given point of flight.
-8. Adding a glider selection interface with its data such as perfection, mass, wing span and flap positions for greater functionality of the system.
+7. Graphic indications of the optimal speed for flights during stewing and wearing- i.e. the overlay thanks to which the user will have the opportunity to see predictions as to the conditions in the air.
+8. Indications of the optimal flap position for a given point of flight.
+9. Adding a glider selection interface with its data such as perfection, mass, wing span and flap positions for greater functionality of the system.
 
-9. Designing the PCB system
+10. Designing the PCB system
 
    ![m52](https://github.com/majorBien/drakkar-project/assets/122567282/a32394b0-1099-4c76-8320-0154f7437f40)
 
