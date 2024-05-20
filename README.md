@@ -88,7 +88,8 @@ The detection of thermal chimneys is done by analyzing differences in medium hei
 
 Schematic diagram
 
-[Schematic_aviatech_2024-05-19 (1).pdf](https://github.com/majorBien/drakkar-project/files/15378322/Schematic_aviatech_2024-05-19.1.pdf)
+[Schematic_aviatech_2024-05-19 (1).pdf](https://github.com/majorBien/drakkar-project/files/15378443/Schematic_aviatech_2024-05-19.1.pdf)
+
 
 
 As you can see in the electronic scheme, we are dealing with the integration of two devices constituting one cooperating system: ESP32 and Raspberry Pi Zero. ESP32 is equipped with a 2-inch display while Raspberry can be connected to any HDMI display/monitor. ESP32 and Rhapsbeers communicate using the UART protocol to the transmission parameters below:
