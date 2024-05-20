@@ -1,3 +1,5 @@
+Attention!!!! the entire project was implemented by the Hackathony "Aviatech Challange" in Mielec in time shorter than 24h
+
 Thermal flight assistant
 ![drakkar](https://github.com/majorBien/drakkar-project/assets/122567282/e06a6866-3b9f-4182-b599-cbed8aefec30)
 
